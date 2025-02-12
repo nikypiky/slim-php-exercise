@@ -21,13 +21,16 @@ $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 $app->get('/', function ($request, $response) {
     $view = Twig::fromRequest($request);
 
-    return $view->render($response, 'home.html.twig', [
-        'name' => 'John',
-    ]);
+    return $view->render($response, 'login.html.twig');
+});
+
+$app->post('/login', function ($request, $response) {
+    $response->getBody()->write("POST successfull");
+
+	return $response;
 });
 
 
-// Define app routes
 $app->get('/hello', function (Request $request, Response $response, $args) {
     include("../src/db.php");
     $sql = 'SELECT * FROM customers';
