@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+    <body>
+        <h1>Hello, please Login.</h1>
+        <form action="/login" method="POST">
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username"><br>
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password"><br>
+            <input type="submit" value="Submit"><br>
+        </form>
+        <p style="color: red">{{ error_message }}</p>
+        <p>Not registered yet? Please <a href="/register-page">do so here.</a></p>
+    </body>
+</html>

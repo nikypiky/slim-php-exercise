@@ -24,10 +24,9 @@ session_start();
 $app->get('/', function ($request, $response) {
 	$view = Twig::fromRequest($request);
 	if(isset($_SESSION["login_status"]) && $_SESSION["login_status"] == true) {
-		$response->getBody()->write("You are logged in");
-		return $response;
+		return $view->render($response, 'user-table.html.twig');
 	} else {
-	return $view->render($response, 'login-page.html.twig');
+		return $view->render($response, 'login-page.html.twig');
 	}
 });
 
