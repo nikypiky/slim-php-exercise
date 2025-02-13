@@ -80,15 +80,23 @@ function render_error($status_code, $template, $error_message, $request, $respon
 $app->post('/login', function (Request $request, Response $response) {
 	include('../src/db.php');
 	$data = $request->getParsedBody();
-	$stmt = $mysqli->prepare("SELECT * FROM users WHERE username = (?);");
-	$stmt->bind_param("s", $data["username"]);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	$row = mysqli_fetch_assoc($result);
+	try {
+		$stmt = $mysqli->prepare("SELECT * FROM users WHERE username = (?);");
+		$stmt->bind_param("s", $data["username"]);
+		$stmt->execute();
+		$result = $stmt->get_result();
+		$row = mysqli_fetch_assoc($result);
+	} catch (\Throwable $th) {
+		$error_message = "Internal error, please try again later.";
+		return render_error(500, 'login-page.html.twig', $error_message, $request, $response);
+	}
 	if (!$row["username"]) {
 		return render_error(401, 'login-page.html.twig', 'Incorrect username.', $request, $response);
 	}
-	$response->getBody()->write("username checked successfully");
+	if (!password_verify($data["password"], $row["password"])){
+		return render_error(401, 'login-page.html.twig', 'Incorrect password.', $request, $response);
+	}
+	$response->getBody()->write("Logged in successfully");
 	return $response;
 
 });
