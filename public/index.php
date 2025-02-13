@@ -68,11 +68,11 @@ function checkRegistrationData($data, $mysqli)
 	}
 }
 
-function render_error($status_code, $destination, $error_message, $request, $response)
+function render_error($status_code, $template, $error_message, $request, $response)
 {
 	$view = Twig::fromRequest($request);
 	$response = $response->withStatus($status_code);
-	return $view->render($response, $destination, [
+	return $view->render($response, $template, [
 		'error_message' => $error_message,
 	]);
 }
@@ -86,14 +86,14 @@ $app->post('/register', function (Request $request, Response $response) {
 	}
 
 	try {
+		$hash = password_hash($data['password'], PASSWORD_DEFAULT);
 		$stmt = $mysqli->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-		$stmt->bind_param("sss", $data["username"], $data["email"], $data["password"]);
+		$stmt->bind_param("sss", $data["username"], $data["email"], $hash);
 		$stmt->execute();
 	} catch (\Throwable $th) {
 		$error_message = "Internal error, please try again later.";
 		return render_error(500, 'register-page.html.twig', $error_message, $request, $response);
 	}
-
 	$response->withStatus(200);
 	$response->getBody()->write("POST successfull " . $data["username"] . $data["email"] . $data["password"]);
 	return $response;
