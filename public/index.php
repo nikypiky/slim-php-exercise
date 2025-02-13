@@ -24,21 +24,29 @@ $app->get('/', function ($request, $response) {
     return $view->render($response, 'login.html.twig');
 });
 
-$app->post('/login', function ($request, $response) {
-    $response->getBody()->write("POST successfull");
+// $app->post('/login', function ($request, $response) {
+// 	include('../src/db.php');
+// 	$data = $request->getParsedBody();
 
-	return $response;
-});
+// 	$sql = "INSET INTO users (username, email, password) VALUES (?, ?, ?)"
+
+
+//     $response->getBody()->write("POST successfull " . $data['username']);
+// 	return $response;
+// });
 
 
 $app->get('/hello', function (Request $request, Response $response, $args) {
     include("../src/db.php");
-    $sql = 'SELECT * FROM customers';
-    $result = mysqli_query($conn, $sql);
+    $sql = 'SELECT * FROM users';
+    $result = $mysql->query($sql);
     $row = mysqli_fetch_assoc($result);
-    mysqli_close($conn);
+	if ($row) {
+		$response->getBody()->write("success");
+	}
+    mysqli_close($mysql);
     // echo $row["id"] . "<br>";
-    $response->getBody()->write("Customer I: " . $row["id"]);
+    $response->getBody()->write("Customer I: " . $row["username"]);
     return $response;
 });
 

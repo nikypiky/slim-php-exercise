@@ -2,21 +2,20 @@
 
 <?php
 $host = '127.0.0.1';
-$dbname = 'php_slim_test';
+$dbname = 'php_slim';
 $username = 'root';
 $password = '';
 
 try {
-    $conn = mysqli_connect($host, $username, $password, database: $dbname);
+    $mysql = new mysqli($host, $username, $password, database: $dbname);
 } catch (mysqli_sql_exception ) {
     echo 'could not connect';
 }
 
-if($conn){
+if($mysql){
     echo'You are connected!';
 }
 else {
     echo'could not connect';
 }
 ?>
-
