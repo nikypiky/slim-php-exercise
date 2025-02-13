@@ -30,33 +30,68 @@ $app->get('/register-page', function ($request, $response) {
 	return $view->render($response, 'register-page.html.twig');
 });
 
-$app->post('/register', function (Request $request, Response $response) {
-	include('../src/db.php');
-	$data = $request->getParsedBody();
-
+function checkRegistrationData($data, $mysqli)
+{
 	//check if username uses correct characters
 	$username = $data["username"];
-	if (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
-		$error_message = "Only letters and white space allowed";
+	$email = $data["email"];
+	$password = $data["password"];
+	if (!preg_match("/^[a-zA-Z-' ]*$/", $username)) {
+		$error_message = "Only letters and white space allowed.";
 	}
 	$email = $data["email"];
 	if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-		$error_message = "Invalid email format";
+		$error_message = "Invalid email format.";
 	}
-	if ($error_message) {
-		$view = Twig::fromRequest($request);
-
-		return $view->render($response, 'register-page.html.twig', [
-			'error_message' => $error_message,
-		]);
+	$password = $data["password"];
+	if ($password != $data["password_confirmation"]) {
+		$error_message = "Passwords do not match.";
 	}
-
-
-	$stmt = $mysqli->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-	$stmt->bind_param("sss", $data["username"], $data["email"], $data["password"]);
+	$stmt = $mysqli->prepare("SELECT username FROM users WHERE username = ?");
+	$stmt->bind_param("s", $username);
 	$stmt->execute();
+	$result = $stmt->get_result();
+	$user = $result->fetch_assoc();
+	if ($user["username"]) {
+		$error_message = "Username allready taken.";
+	}
+	$stmt = $mysqli->prepare("SELECT email FROM users WHERE email = ?");
+	$stmt->bind_param("s", $email);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	$user = $result->fetch_assoc();
+	if ($user["email"]) {
+		$error_message = "E-mail allready taken.";
+	}
+	return $error_message;
+}
 
+function render_error($status_code, $destination, $error_message, $request, $response) {
+	$view = Twig::fromRequest($request);
+	$response = $response->withStatus($status_code);
+	return $view->render($response, $destination, [
+		'error_message' => $error_message,
+	]);
+}
 
+$app->post('/register', function (Request $request, Response $response) {
+	include('../src/db.php');
+	$data = $request->getParsedBody();
+	$error_message = checkRegistrationData($data, $mysqli);
+	if ($error_message) {
+		return render_error(406, 'register-page.html.twig', $error_message, $request, $response);
+	}
+
+	try {
+		$stmt = $mysqli->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+		$stmt->bind_param("sss", $data["username"], $data["email"], $data["password"]);
+		$stmt->execute();
+	} catch (\Throwable $th) {
+		$error_message = "Internal error, please try again later.";
+		return render_error(500, 'register-page.html.twig', $error_message, $request, $response);
+	}
+
+	$response->withStatus(200);
 	$response->getBody()->write("POST successfull " . $data["username"] . $data["email"] . $data["password"]);
 	return $response;
 });
