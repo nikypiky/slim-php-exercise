@@ -36,16 +36,19 @@ function checkRegistrationData($data, $mysqli)
 	$username = $data["username"];
 	$email = $data["email"];
 	$password = $data["password"];
+	if (strlen($username < 6) || strlen($email) < 6 || strlen($password) < 6) {
+		return "Credentials have to be at lease 6 characters long";
+	}
 	if (!preg_match("/^[a-zA-Z-' ]*$/", $username)) {
-		$error_message = "Only letters and white space allowed.";
+		return "Only letters and white space allowed.";
 	}
 	$email = $data["email"];
 	if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-		$error_message = "Invalid email format.";
+		return "Invalid email format.";
 	}
 	$password = $data["password"];
 	if ($password != $data["password_confirmation"]) {
-		$error_message = "Passwords do not match.";
+		return "Passwords do not match.";
 	}
 	$stmt = $mysqli->prepare("SELECT username FROM users WHERE username = ?");
 	$stmt->bind_param("s", $username);
@@ -53,7 +56,7 @@ function checkRegistrationData($data, $mysqli)
 	$result = $stmt->get_result();
 	$user = $result->fetch_assoc();
 	if ($user["username"]) {
-		$error_message = "Username allready taken.";
+		return "Username allready taken.";
 	}
 	$stmt = $mysqli->prepare("SELECT email FROM users WHERE email = ?");
 	$stmt->bind_param("s", $email);
@@ -61,12 +64,12 @@ function checkRegistrationData($data, $mysqli)
 	$result = $stmt->get_result();
 	$user = $result->fetch_assoc();
 	if ($user["email"]) {
-		$error_message = "E-mail allready taken.";
+		return "E-mail allready taken.";
 	}
-	return $error_message;
 }
 
-function render_error($status_code, $destination, $error_message, $request, $response) {
+function render_error($status_code, $destination, $error_message, $request, $response)
+{
 	$view = Twig::fromRequest($request);
 	$response = $response->withStatus($status_code);
 	return $view->render($response, $destination, [
