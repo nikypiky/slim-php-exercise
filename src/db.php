@@ -7,12 +7,12 @@ $username = 'root';
 $password = '';
 
 try {
-    $mysql = new mysqli($host, $username, $password, database: $dbname);
+    $mysqli = new mysqli($host, $username, $password, database: $dbname);
 } catch (mysqli_sql_exception ) {
     echo 'could not connect';
 }
 
-if($mysql){
+if($mysqli){
     echo'You are connected!';
 }
 else {

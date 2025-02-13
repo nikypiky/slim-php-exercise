@@ -24,27 +24,28 @@ $app->get('/', function ($request, $response) {
     return $view->render($response, 'login.html.twig');
 });
 
-// $app->post('/login', function ($request, $response) {
-// 	include('../src/db.php');
-// 	$data = $request->getParsedBody();
+$app->post('/register', function (Request $request, Response $response) {
+	include('../src/db.php');
+	$data = $request->getParsedBody();
 
-// 	$sql = "INSET INTO users (username, email, password) VALUES (?, ?, ?)"
+	$stmt = $mysqli->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+	$stmt->bind_param("sss", $data["username"], $data["email"], $data["password"]);
 
 
-//     $response->getBody()->write("POST successfull " . $data['username']);
-// 	return $response;
-// });
+    $response->getBody()->write("POST successfull " . $data["username"]. $data["email"]. $data["password"]);
+	return $response;
+});
 
 
 $app->get('/hello', function (Request $request, Response $response, $args) {
     include("../src/db.php");
     $sql = 'SELECT * FROM users';
-    $result = $mysql->query($sql);
+    $result = $mysqli->query($sql);
     $row = mysqli_fetch_assoc($result);
 	if ($row) {
 		$response->getBody()->write("success");
 	}
-    mysqli_close($mysql);
+    mysqli_close($mysqli);
     // echo $row["id"] . "<br>";
     $response->getBody()->write("Customer I: " . $row["username"]);
     return $response;
