@@ -24,10 +24,23 @@ session_start();
 $app->get('/', function ($request, $response) {
 	$view = Twig::fromRequest($request);
 	if(isset($_SESSION["login_status"]) && $_SESSION["login_status"] == true) {
-		return $view->render($response, 'user-table.html.twig');
+		return $response->withheader('location', '/user-table')->withstatus(302);
 	} else {
 		return $view->render($response, 'login-page.html.twig');
 	}
+});
+
+$app->get('/user-table', function ($request, $response) {
+	include('../src/db.php');
+	$view = Twig::fromRequest($request);
+
+	// get user data from database
+	$result = $mysqli->query("SELECT id, username, email FROM users");
+	$users = $result->fetch_all(MYSQLI_ASSOC);
+
+	return $view->render($response, 'user-table.html.twig', [
+		'users' => $users,
+	]);
 });
 
 $app->get('/register-page', function ($request, $response) {
@@ -45,7 +58,7 @@ function checkRegistrationData($data, $mysqli)
 	if (strlen($username < 6) || strlen($email) < 6 || strlen($password) < 6) {
 		return "Credentials have to be at lease 6 characters long";
 	}
-	if (!preg_match("/^[a-zA-Z-' ]*$/", $username)) {
+	if (!preg_match("/^[a-zA-Z-' 0-9]*$/", $username)) {
 		return "Only letters and white space allowed.";
 	}
 	$email = $data["email"];
@@ -113,7 +126,7 @@ $app->post('/login', function (Request $request, Response $response) {
 
 	// $app->redirect('/register_page', '/', 200);
 	// $response->getBody()->write("Logged in successfully");
-	return $response->withHeader('Location', '/')->withStatus(302);
+	return $response->withheader('location', '/')->withstatus(302);
 });
 
 $app->post('/register', function (Request $request, Response $response) {
@@ -140,8 +153,7 @@ $app->post('/register', function (Request $request, Response $response) {
 	// set session variable
 	$_SESSION["username"] = $row["username"];
 	$_SESSION["login_status"] = true;
-	// $response->withStatus(200);
-	// $response->getBody()->write("POST successfull " . $data["username"] . $data["email"] . $data["password"]);
+
 	return $response->withHeader('Location', '/')->withStatus(302);
 });
 

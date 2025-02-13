@@ -9,10 +9,13 @@
 			<th>Username</th>
 			<th>E-mail</th>
 		</tr>
+		{% for user in users %}
 		<tr>
-			<td></td>
-			<td></td>
+			<td>{{ user.id }}</td>
+			<td>{{ user.username }}</td>
+			<td>{{ user.email }}</td>
 		</tr>
+		{% endfor %}
 		</table>
     </body>
 </html>
