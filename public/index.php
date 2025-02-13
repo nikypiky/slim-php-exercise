@@ -111,8 +111,9 @@ $app->post('/login', function (Request $request, Response $response) {
 	$_SESSION["username"] = $row["username"];
 	$_SESSION["login_status"] = true;
 
-	$response->getBody()->write("Logged in successfully");
-	return $response;
+	// $app->redirect('/register_page', '/', 200);
+	// $response->getBody()->write("Logged in successfully");
+	return $response->withHeader('Location', '/')->withStatus(302);
 });
 
 $app->post('/register', function (Request $request, Response $response) {
@@ -136,9 +137,12 @@ $app->post('/register', function (Request $request, Response $response) {
 		return render_error(500, 'register-page.html.twig', $error_message, $request, $response);
 	}
 
-	$response->withStatus(200);
-	$response->getBody()->write("POST successfull " . $data["username"] . $data["email"] . $data["password"]);
-	return $response;
+	// set session variable
+	$_SESSION["username"] = $row["username"];
+	$_SESSION["login_status"] = true;
+	// $response->withStatus(200);
+	// $response->getBody()->write("POST successfull " . $data["username"] . $data["email"] . $data["password"]);
+	return $response->withHeader('Location', '/')->withStatus(302);
 });
 
 

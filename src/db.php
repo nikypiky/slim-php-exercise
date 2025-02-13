@@ -11,11 +11,4 @@ try {
 } catch (mysqli_sql_exception ) {
     echo 'could not connect';
 }
-
-if($mysqli){
-    echo'You are connected!';
-}
-else {
-    echo'could not connect';
-}
 ?>
