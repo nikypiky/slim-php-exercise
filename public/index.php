@@ -18,10 +18,17 @@ $app->add(TwigMiddleware::create($app, $twig));
 $app->addRoutingMiddleware();
 $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 
+// start session to track user login
+session_start();
+
 $app->get('/', function ($request, $response) {
 	$view = Twig::fromRequest($request);
-
+	if(isset($_SESSION["login_status"]) && $_SESSION["login_status"] == true) {
+		$response->getBody()->write("You are logged in");
+		return $response;
+	} else {
 	return $view->render($response, 'login-page.html.twig');
+	}
 });
 
 $app->get('/register-page', function ($request, $response) {
@@ -80,6 +87,8 @@ function render_error($status_code, $template, $error_message, $request, $respon
 $app->post('/login', function (Request $request, Response $response) {
 	include('../src/db.php');
 	$data = $request->getParsedBody();
+
+	// querry database
 	try {
 		$stmt = $mysqli->prepare("SELECT * FROM users WHERE username = (?);");
 		$stmt->bind_param("s", $data["username"]);
@@ -90,25 +99,34 @@ $app->post('/login', function (Request $request, Response $response) {
 		$error_message = "Internal error, please try again later.";
 		return render_error(500, 'login-page.html.twig', $error_message, $request, $response);
 	}
+
+	// check login information
 	if (!$row["username"]) {
 		return render_error(401, 'login-page.html.twig', 'Incorrect username.', $request, $response);
 	}
 	if (!password_verify($data["password"], $row["password"])){
 		return render_error(401, 'login-page.html.twig', 'Incorrect password.', $request, $response);
 	}
+
+	// set session variable
+	$_SESSION["username"] = $row["username"];
+	$_SESSION["login_status"] = true;
+
 	$response->getBody()->write("Logged in successfully");
 	return $response;
-
 });
 
 $app->post('/register', function (Request $request, Response $response) {
 	include('../src/db.php');
 	$data = $request->getParsedBody();
+
+	// check correctness of user input
 	$error_message = checkRegistrationData($data, $mysqli);
 	if ($error_message) {
 		return render_error(406, 'register-page.html.twig', $error_message, $request, $response);
 	}
 
+	// query database
 	try {
 		$hash = password_hash($data['password'], PASSWORD_DEFAULT);
 		$stmt = $mysqli->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
@@ -118,6 +136,7 @@ $app->post('/register', function (Request $request, Response $response) {
 		$error_message = "Internal error, please try again later.";
 		return render_error(500, 'register-page.html.twig', $error_message, $request, $response);
 	}
+
 	$response->withStatus(200);
 	$response->getBody()->write("POST successfull " . $data["username"] . $data["email"] . $data["password"]);
 	return $response;
