@@ -21,7 +21,7 @@ $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 $app->get('/', function ($request, $response) {
 	$view = Twig::fromRequest($request);
 
-	return $view->render($response, 'login.html.twig');
+	return $view->render($response, 'login-page.html.twig');
 });
 
 $app->get('/register-page', function ($request, $response) {
@@ -76,6 +76,22 @@ function render_error($status_code, $template, $error_message, $request, $respon
 		'error_message' => $error_message,
 	]);
 }
+
+$app->post('/login', function (Request $request, Response $response) {
+	include('../src/db.php');
+	$data = $request->getParsedBody();
+	$stmt = $mysqli->prepare("SELECT * FROM users WHERE username = (?);");
+	$stmt->bind_param("s", $data["username"]);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	$row = mysqli_fetch_assoc($result);
+	if (!$row["username"]) {
+		return render_error(401, 'login-page.html.twig', 'Incorrect username.', $request, $response);
+	}
+	$response->getBody()->write("username checked successfully");
+	return $response;
+
+});
 
 $app->post('/register', function (Request $request, Response $response) {
 	include('../src/db.php');
