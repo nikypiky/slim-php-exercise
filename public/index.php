@@ -54,6 +54,7 @@ $app->get('/user-table', function ($request, $response) {
 })->add(new CheckLoginMiddleware());
 
 $app->get('/register-page', function ($request, $response) {
+	$view = Twig::fromRequest($request);
 	return $view->render($response, 'register-page.html.twig');
 });
 
@@ -148,23 +149,27 @@ $app->post('/edit-user/{id}', function ($request, $response, array $args) {
 
 	$allowed_options = ['username', 'email', 'password'];
 	if (!in_array($data["field"], $allowed_options)){
-		die ("You have sent a unalowed option");
+		die ("Please choose a option.");
 	}
 	$chosen_field = $data['field'];
-	// $response->getBody()->write($id . $data['new_data'] . $data['field']);
-	// return $response;
+	if ($chosen_field === 'username') $error_message = checkUsername($data['new_data'], $mysqli);
+	if ($chosen_field === 'email') $error_message = checkEmail($data['new_data'], $mysqli);
+	if ($chosen_field === 'password') $error_message = checkPassword($data['new_data'], $data['new_data'], $mysqli);
+
+	if ($error_message){
+		$response->getBody()->write($error_message);
+		return $response;
+	}
 	try {
 		$stmt = $mysqli->prepare("UPDATE users SET `$chosen_field` = ? WHERE id = ?");
 		$stmt->bind_param("si", $data["new_data"], $id);
 		$stmt->execute();
 	} catch (\Throwable $th) {
 		$error_message = "Internal error, please try again later.";
-		return $response->getBody()->write($error_message);
-		// return render_error(500, 'edit-user-page.html.twig', $th, $request, $response);
+		$response->getBody()->write($error_message);
+		return $response;
 	}
 	return $response->withHeader('Location', '/')->withStatus(302);
-	$response->getBody()->write($id . $data['new_data'] . $data['field']);
-	return $response;
 });
 
 

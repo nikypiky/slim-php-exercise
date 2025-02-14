@@ -3,7 +3,7 @@ use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 
 function checkUsername($username, $mysqli){
-	if (strlen($username) < 1) {
+	if (strlen($username) === 0) {
 		return "Please insert username.";
 	}
 	if (strlen($username) >= 255) {
@@ -20,10 +20,11 @@ function checkUsername($username, $mysqli){
 	if ($user["username"]) {
 		return "Username allready taken.";
 	}
+	return null;
 }
 
 function checkEmail($email, $mysqli) {
-	if (strlen($email) < 1) {
+	if (strlen($email) === 0) {
 		return "Please insert email.";
 	}
 	if (strlen($email) >= 255) {
@@ -40,10 +41,11 @@ function checkEmail($email, $mysqli) {
 	if ($user["email"]) {
 		return "E-mail allready taken.";
 	}
+	return null;
 }
 
 function checkPassword($password, $confirm_password, $mysqli){
-	if (strlen($password) < 1) {
+	if (strlen($password) === 0) {
 		return "Please insert password.";
 	}
 	if (strlen($password) >= 255) {
@@ -55,6 +57,7 @@ function checkPassword($password, $confirm_password, $mysqli){
 	if ($password != $confirm_password) {
 		return "Passwords do not match.";
 	}
+	return null;
 }
 
 function checkRegistrationData($data, $mysqli)
@@ -66,12 +69,9 @@ function checkRegistrationData($data, $mysqli)
 	$email = $data["email"];
 	$password = $data["password"];
 	$confirm_password = $data["confirm_password"];
-	$error_message = checkUsername($username, $mysqli);
-	if ($error_message) return $error_message;
-	$error_message = checkEmail($email, $mysqli);
-	if ($error_message) return $error_message;
 	$error_message = checkPassword($password, $confirm_password, $mysqli);
-	if ($error_message) return $error_message;
+	$error_message = checkEmail($email, $mysqli);
+	$error_message = checkUsername($username, $mysqli);
 	return $error_message;
 }
 
