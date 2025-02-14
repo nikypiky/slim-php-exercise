@@ -2,6 +2,8 @@
 
 function checkRegistrationData($data, $mysqli)
 {
+	include('db.php');
+
 	//check if username uses correct characters
 	$username = $data["username"];
 	$email = $data["email"];

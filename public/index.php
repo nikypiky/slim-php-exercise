@@ -59,8 +59,6 @@ $app->get('/register-page', function ($request, $response) {
 	return $view->render($response, 'register-page.html.twig');
 });
 
-include('../src/utils.php');
-
 
 
 $app->post('/login', function (Request $request, Response $response) {
@@ -138,11 +136,11 @@ $app->delete('/del-user/{id}', function ($request, $response, array $args) {
 		return render_error(500, 'user-table.html.twig', $th, $request, $response);
 	}
 		return $response->withHeader('Location', '/user-table')->withStatus(302);
-});
+})->add(new CheckLoginMiddleware());
 
 $app->patch('/edit-user/{id}', function ($request, $response, array $args){
 
-});
+})->add(new CheckLoginMiddleware());
 
 $app->get('/hello', function (Request $request, Response $response, $args) {
 	include("../src/db.php");
