@@ -16,9 +16,15 @@
 			<td>{{ user.username }}</td>
 			<td>{{ user.email }}</td>
 			<td>
-				<form action="/del-user/{{user.id}}" name="_METHOD" value="DELETE" method="post">
+				<form action="/del-user/{{user.id}}" method="post">
 					<input type="hidden" name="_METHOD" value="DELETE"/>
 					<input type="submit" value="Delete user"/>
+				</form>
+			</td>
+			<td>
+				<form action="/edit-user/{{user.id}}" method="post">
+					<input type="hidden" name="_METHOD" value="PATCH"/>
+					<input type="submit" value="Edit user"/>
 				</form>
 			</td>
 		</tr>
