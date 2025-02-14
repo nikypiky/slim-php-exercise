@@ -4,6 +4,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
+use Slim\Middleware\MethodOverrideMiddleware;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -20,6 +21,10 @@ $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 
 // start session to track user login
 session_start();
+
+// Add MethodOverride middleware
+$methodOverrideMiddleware = new MethodOverrideMiddleware();
+$app->add($methodOverrideMiddleware);
 
 $app->get('/', function ($request, $response) {
 	$view = Twig::fromRequest($request);
@@ -130,7 +135,6 @@ $app->post('/login', function (Request $request, Response $response) {
 });
 
 $app->post('/register', function (Request $request, Response $response) {
-	include('../src/db.php');
 	$data = $request->getParsedBody();
 
 	// check correctness of user input
@@ -141,6 +145,7 @@ $app->post('/register', function (Request $request, Response $response) {
 
 	// query database
 	try {
+		include('../src/db.php');
 		$hash = password_hash($data['password'], PASSWORD_DEFAULT);
 		$stmt = $mysqli->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
 		$stmt->bind_param("sss", $data["username"], $data["email"], $hash);
@@ -158,7 +163,19 @@ $app->post('/register', function (Request $request, Response $response) {
 });
 
 $app->delete('/del-user/{id}', function ($request, $response, array $args) {
-	
+	$id = $args['id'];
+	$id_int =  intval($id);
+
+	try {
+		include('../src/db.php');
+		$stmt = $mysqli->prepare("DELETE FROM users WHERE id = ?");
+		$stmt->bind_param("i", $id_int);
+		$stmt->execute();
+	} catch (\Throwable $th) {
+		$error_message = "Internal error, please try again later.";
+		return render_error(500, 'user-table.html.twig', $th, $request, $response);
+	}
+		return $response->withHeader('Location', '/user-table')->withStatus(302);
 });
 
 $app->get('/hello', function (Request $request, Response $response, $args) {
