@@ -27,6 +27,8 @@ session_start();
 $methodOverrideMiddleware = new MethodOverrideMiddleware();
 $app->add($methodOverrideMiddleware);
 
+include("../src/utils.php");
+
 $app->get('/', function ($request, $response) {
 	$view = Twig::fromRequest($request);
 	if(isset($_SESSION["login_status"]) && $_SESSION["login_status"] == true) {
@@ -39,10 +41,8 @@ $app->get('/', function ($request, $response) {
 $app->get('/user-table', function ($request, $response) {
 
 	//reroute user if not logged in
-	// include('../src/check-login.php');
 	include('../src/db.php');
 	$view = Twig::fromRequest($request);
-
 
 	// get user data from database
 	$result = $mysqli->query("SELECT id, username, email FROM users");
@@ -58,8 +58,6 @@ $app->get('/register-page', function ($request, $response) {
 
 	return $view->render($response, 'register-page.html.twig');
 });
-
-
 
 $app->post('/login', function (Request $request, Response $response) {
 	include('../src/db.php');
@@ -89,8 +87,6 @@ $app->post('/login', function (Request $request, Response $response) {
 	$_SESSION["username"] = $row["username"];
 	$_SESSION["login_status"] = true;
 
-	// $app->redirect('/register_page', '/', 200);
-	// $response->getBody()->write("Logged in successfully");
 	return $response->withheader('location', '/')->withstatus(302);
 });
 
@@ -138,22 +134,17 @@ $app->delete('/del-user/{id}', function ($request, $response, array $args) {
 		return $response->withHeader('Location', '/user-table')->withStatus(302);
 })->add(new CheckLoginMiddleware());
 
-$app->patch('/edit-user/{id}', function ($request, $response, array $args){
+$app->patch('/edit-user-page/{id}', function ($request, $response, array $args){
+	$view = Twig::fromRequest($request);
 
+	return $view->render($response, 'edit-user-page.html.twig', [
+		'id' => $id,
+	]);
 })->add(new CheckLoginMiddleware());
 
-$app->get('/hello', function (Request $request, Response $response, $args) {
-	include("../src/db.php");
-	$sql = 'SELECT * FROM users';
-	$result = $mysqli->query($sql);
-	$row = mysqli_fetch_assoc($result);
-	if ($row) {
-		$response->getBody()->write("success");
-	}
-	mysqli_close($mysqli);
-	// echo $row["id"] . "<br>";
-	$response->getBody()->write("Customer I: " . $row["username"]);
-	return $response;
-});
+$app->patch('/edit-user/{id}', function($request, $response, array $args){
+	$data = $request->getParsedBody();
+
+})->add(new CheckLoginMiddleware());
 
 $app->run();

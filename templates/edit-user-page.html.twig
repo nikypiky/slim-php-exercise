@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit user</title>
+</head>
+    <body>
+        <h1>Hello, please register.</h1>
+        <form action="/edit-user/{{id}}" method="POST">
+			<input type="radio" name="data" value="username">
+			<label for="username">username</label><br>
+			<input type="radio" id="css" name="data" value="email">
+			<label for="email">email</label><br>
+			<input type="radio" id="javascript" name="data" value="password">
+			<label for="password">password</label><br>
+			<input type="text">
+			<input type="submit" value="Submit">
+			<input type="hidden" name="_METHOD" value="PATCH"/>
+        </form>
+        <p style="color: red">{{ error_message }}</p>
+    </body>
+</html>
