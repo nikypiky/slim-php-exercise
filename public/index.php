@@ -157,6 +157,9 @@ $app->post('/register', function (Request $request, Response $response) {
 	return $response->withHeader('Location', '/')->withStatus(302);
 });
 
+$app->delete('/del-user/{id}', function ($request, $response, array $args) {
+	
+});
 
 $app->get('/hello', function (Request $request, Response $response, $args) {
 	include("../src/db.php");
