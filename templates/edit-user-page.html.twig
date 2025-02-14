@@ -4,17 +4,17 @@
     <title>Edit user</title>
 </head>
     <body>
-        <h1>Hello, please register.</h1>
+        <h1>Hello, please register{{id}}.</h1>
         <form action="/edit-user/{{id}}" method="POST">
-			<input type="radio" name="data" value="username">
+			<input type="radio" name="field" value="username">
 			<label for="username">username</label><br>
-			<input type="radio" id="css" name="data" value="email">
+			<input type="radio" name="field" value="email">
 			<label for="email">email</label><br>
-			<input type="radio" id="javascript" name="data" value="password">
+			<input type="radio"  name="field" value="password">
 			<label for="password">password</label><br>
-			<input type="text">
+			<input type="text" name="new_data">
 			<input type="submit" value="Submit">
-			<input type="hidden" name="_METHOD" value="PATCH"/>
+			{# <input type="hidden" name="_METHOD" value="PATCH"/> #}
         </form>
         <p style="color: red">{{ error_message }}</p>
     </body>

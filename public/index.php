@@ -54,8 +54,6 @@ $app->get('/user-table', function ($request, $response) {
 })->add(new CheckLoginMiddleware());
 
 $app->get('/register-page', function ($request, $response) {
-	$view = Twig::fromRequest($request);
-
 	return $view->render($response, 'register-page.html.twig');
 });
 
@@ -134,17 +132,40 @@ $app->delete('/del-user/{id}', function ($request, $response, array $args) {
 		return $response->withHeader('Location', '/user-table')->withStatus(302);
 })->add(new CheckLoginMiddleware());
 
-$app->patch('/edit-user-page/{id}', function ($request, $response, array $args){
+$app->get('/edit-user-page/{id}', function ($request, $response, array $args){
 	$view = Twig::fromRequest($request);
+	$id = $args['id'];
 
 	return $view->render($response, 'edit-user-page.html.twig', [
 		'id' => $id,
 	]);
 })->add(new CheckLoginMiddleware());
 
-$app->patch('/edit-user/{id}', function($request, $response, array $args){
+$app->post('/edit-user/{id}', function ($request, $response, array $args) {
+	include('../src/db.php');
 	$data = $request->getParsedBody();
+	$id = $args['id'];
 
-})->add(new CheckLoginMiddleware());
+	$allowed_options = ['username', 'email', 'password'];
+	if (!in_array($data["field"], $allowed_options)){
+		die ("You have sent a unalowed option");
+	}
+	$chosen_field = $data['field'];
+	// $response->getBody()->write($id . $data['new_data'] . $data['field']);
+	// return $response;
+	try {
+		$stmt = $mysqli->prepare("UPDATE users SET `$chosen_field` = ? WHERE id = ?");
+		$stmt->bind_param("si", $data["new_data"], $id);
+		$stmt->execute();
+	} catch (\Throwable $th) {
+		$error_message = "Internal error, please try again later.";
+		return $response->getBody()->write($error_message);
+		// return render_error(500, 'edit-user-page.html.twig', $th, $request, $response);
+	}
+	return $response->withHeader('Location', '/')->withStatus(302);
+	$response->getBody()->write($id . $data['new_data'] . $data['field']);
+	return $response;
+});
+
 
 $app->run();
