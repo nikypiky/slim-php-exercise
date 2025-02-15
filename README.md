@@ -69,7 +69,8 @@ Tento projekt demonstruje základní funkcionality REST API pro správu uživate
 	- Pokud jsou data správná: Uživatel je smazán a je přesměrován na /user-table se stavovým kódem 302.
 
 ## Struktura databáze:
-- **Users**
+- **users**
+	- Obsahuje data všech uživatelů.
 	- id, username, email jsou specifikované jako UNIQUE.
 	- id, username, email a password jsou specifikované jako NOT NULL.
 
@@ -80,3 +81,9 @@ Tento projekt demonstruje základní funkcionality REST API pro správu uživate
 		| email    | varchar(255) | NO   | UNI | NULL    |                |
 		| password | varchar(255) | NO   | UNI | NULL    |                |
 
+- **admins**
+	- Obsahuje id všech administrátorů.
+
+		| Column   | Type    | Null | Key | Default | Extra |
+		|----------|---------|------|-----|---------|-------|
+		| admin_id | int(11) | NO   |     | NULL    |       |
