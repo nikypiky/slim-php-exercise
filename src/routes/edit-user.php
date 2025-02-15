@@ -1,5 +1,7 @@
 <?php
 
+use App\Middleware\CheckLoginMiddleware;
+
 $app->post('/edit-user/{id}', function ($request, $response, array $args) {
 	include __DIR__ .'/../functions/db.php';
 	$data = $request->getParsedBody();
@@ -34,4 +36,5 @@ $app->post('/edit-user/{id}', function ($request, $response, array $args) {
 		return $response;
 	}
 	return $response->withHeader('Location', '/')->withStatus(302);
-});
+})->add(new CheckLoginMiddleware());
+
