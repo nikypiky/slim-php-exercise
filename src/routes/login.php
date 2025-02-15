@@ -25,8 +25,7 @@ $app->post('/login', function ($request, $response) {
 	}
 
 	// set session variable
-	$_SESSION["username"] = $row["username"];
+	$_SESSION["id"] = $row["id"];
 	$_SESSION["login_status"] = true;
-
 	return $response->withheader('location', '/')->withstatus(302);
 });
