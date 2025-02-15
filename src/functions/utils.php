@@ -44,7 +44,7 @@ function checkEmail($email, $mysqli) {
 	return null;
 }
 
-function checkPassword($password, $confirm_password, $mysqli){
+function checkPassword($password, $confirm_password){
 	if (strlen($password) === 0) {
 		return "Please insert password.";
 	}
@@ -54,7 +54,7 @@ function checkPassword($password, $confirm_password, $mysqli){
 	if (!preg_match("/^[a-zA-Z-' 0-9]*$/", $password)) {
 		return "Only letters and white space allowed.";
 	}
-	if ($password != $confirm_password) {
+	if ($password !== $confirm_password) {
 		return "Passwords do not match.";
 	}
 	return null;
@@ -68,10 +68,13 @@ function checkRegistrationData($data, $mysqli)
 	$username = $data["username"];
 	$email = $data["email"];
 	$password = $data["password"];
-	$confirm_password = $data["confirm_password"];
-	$error_message = checkPassword($password, $confirm_password, $mysqli);
+	$confirm_password = $data["password_confirmation"];
+	$error_message = checkPassword($password, $confirm_password);
+	if ($error_message) return $error_message;
 	$error_message = checkEmail($email, $mysqli);
+	if ($error_message) return $error_message;
 	$error_message = checkUsername($username, $mysqli);
+	if ($error_message) return $error_message;
 	return $error_message;
 }
 

@@ -19,7 +19,7 @@ $app->post('/register', function ($request, $response){
 		$stmt->execute();
 	} catch (\Throwable $th) {
 		$error_message = "Internal error, please try again later.";
-		return render_error(500, 'register-page.html.twig', $th, $request, $response);
+		return render_error(500, 'register-page.html.twig', $error_message, $request, $response);
 	}
 
 	// set session variable

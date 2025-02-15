@@ -13,7 +13,7 @@ $app->post('/edit-user/{id}', function ($request, $response, array $args) {
 	$new_data = $data['new_data'];
 	if ($chosen_field === 'username') $error_message = checkUsername($new_data, $mysqli);
 	if ($chosen_field === 'email') $error_message = checkEmail($new_data, $mysqli);
-	if ($chosen_field === 'password') $error_message = checkPassword($new_data, $new_data, $mysqli);
+	if ($chosen_field === 'password') $error_message = checkPassword($new_data, $new_data);
 
 	if ($error_message){
 		$response->getBody()->write($error_message);
