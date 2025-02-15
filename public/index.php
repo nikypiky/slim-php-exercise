@@ -33,13 +33,13 @@ include("../src/functions/utils.php");
 
 include("../src/routes/root.php");
 
-include("../src/routes/user-table.php");
+include("../src/routes/login.php");
 
 include("../src/routes/register-page.php");
 
-include("../src/routes/login.php");
-
 include("../src/routes/register.php");
+
+include("../src/routes/user-table.php");
 
 include("../src/routes/del-user.php");
 
