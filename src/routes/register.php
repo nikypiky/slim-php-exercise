@@ -13,12 +13,14 @@ $app->post('/register', function ($request, $response){
 	// query database
 	try {
 		include __DIR__ .'/../functions/db.php';
+
 		//create user
 		$hash = password_hash($data['password'], PASSWORD_DEFAULT);
 		$stmt = $mysqli->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
 		$stmt->bind_param("sss", $data["username"], $data["email"], $hash);
 		$stmt->execute();
-		//git user id
+
+		//get user id
 		$stmt = $mysqli->prepare("SELECT id FROM users WHERE username = ?");
 		$stmt->bind_param('s', $data["username"]);
 		$stmt->execute();
